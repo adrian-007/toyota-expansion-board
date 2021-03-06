@@ -24,40 +24,40 @@ template<typename T, uint8_t Capacity>
 class Queue
 {
 public:
-	bool push(T element)
-	{
-		if (full())
-			return false;
+    bool push(T element)
+    {
+        if (full())
+            return false;
 
-		_elements[_end] = element;
-		_end = (_end + 1) % Capacity;
-		++_size;
-		return true;
-	}
-	
-	bool pop()
-	{
-		if (empty())
-			return false;
-		
-		_begin = (_begin + 1) % Capacity;
-		--_size;
-		return true;
-	}
+        _elements[_end] = element;
+        _end = (_end + 1) % Capacity;
+        ++_size;
+        return true;
+    }
+    
+    bool pop()
+    {
+        if (empty())
+            return false;
+        
+        _begin = (_begin + 1) % Capacity;
+        --_size;
+        return true;
+    }
 
-	T* peek()
-	{
-		return empty() ? nullptr : &_elements[_begin];
-	}
+    T* peek()
+    {
+        return empty() ? nullptr : &_elements[_begin];
+    }
 
-	uint8_t size() const { return _size; }
-	bool empty() const { return _size == 0; }
-	bool full() const { return _size == Capacity; }
+    uint8_t size() const { return _size; }
+    bool empty() const { return _size == 0; }
+    bool full() const { return _size == Capacity; }
 
 private:
-	T _elements[Capacity];
-	
-	uint8_t _size = 0;
-	uint8_t _begin = 0;
-	uint8_t _end = 0;
+    T _elements[Capacity];
+    
+    uint8_t _size = 0;
+    uint8_t _begin = 0;
+    uint8_t _end = 0;
 };

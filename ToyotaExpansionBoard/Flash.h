@@ -23,25 +23,25 @@
 template<typename T>
 inline T pgm_read(const T* ptr)
 {
-	switch (sizeof(T)) {
-		case 1: return pgm_read_byte(ptr);
-		case 2: return pgm_read_word(ptr);
-		case 4: return pgm_read_dword(ptr);
-		default: {
-			T result;
-			memcpy_P(&result, ptr, sizeof(T));
-			return result;
-		}
-	}
+    switch (sizeof(T)) {
+        case 1: return pgm_read_byte(ptr);
+        case 2: return pgm_read_word(ptr);
+        case 4: return pgm_read_dword(ptr);
+        default: {
+            T result;
+            memcpy_P(&result, ptr, sizeof(T));
+            return result;
+        }
+    }
 }
 
 template<typename T>
 struct flash
 {
-	const T value;
+    const T value;
 
-	inline T get() const { return pgm_read(&value); }
+    inline T get() const { return pgm_read(&value); }
 
-	template<typename R = T>
-	inline operator R() const { return pgm_read(&value); }
+    template<typename R = T>
+    inline operator R() const { return pgm_read(&value); }
 };

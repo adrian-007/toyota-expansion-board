@@ -26,77 +26,77 @@
 
 struct TWI
 {
-	static constexpr auto TWIFrequency() { return 100000UL; }
+    static constexpr auto TWIFrequency() { return 100000UL; }
 
-	static void init()
-	{
-		TWSR &= ~((1 << TWPS0) | (1 << TWPS1));
-		TWBR = ((F_CPU/TWIFrequency()) - 16) / 2;
-	}
+    static void init()
+    {
+        TWSR &= ~((1 << TWPS0) | (1 << TWPS1));
+        TWBR = ((F_CPU/TWIFrequency()) - 16) / 2;
+    }
 
-	static void start()
-	{
-		InterruptGuard ig {};
-		TWCR = (1 << TWINT) | (1 << TWEN) | (1 << TWSTA);
-		while (!(TWCR & (1 << TWINT)));
-		
-		auto status { TW_STATUS & TW_STATUS_MASK };
-		if (status != TW_START) {
-			DEBUG_PRINT("Start failed, status: ", status);
-		}
-	}
+    static void start()
+    {
+        InterruptGuard ig {};
+        TWCR = (1 << TWINT) | (1 << TWEN) | (1 << TWSTA);
+        while (!(TWCR & (1 << TWINT)));
+        
+        auto status { TW_STATUS & TW_STATUS_MASK };
+        if (status != TW_START) {
+            DEBUG_PRINT("Start failed, status: ", status);
+        }
+    }
 
-	static void stop()
-	{
-		InterruptGuard ig {};
-		TWCR = (1 << TWINT) | (1 << TWEN) | (1 << TWSTO);
-		while (!(TWCR & (1 << TWSTO)));
-	}
+    static void stop()
+    {
+        InterruptGuard ig {};
+        TWCR = (1 << TWINT) | (1 << TWEN) | (1 << TWSTO);
+        while (!(TWCR & (1 << TWSTO)));
+    }
 
-	template<typename...Args>
-	inline static void write(Args...data)
-	{
-		InterruptGuard ig {};
-		TWI::writeImpl(data...);
-	}
+    template<typename...Args>
+    inline static void write(Args...data)
+    {
+        InterruptGuard ig {};
+        TWI::writeImpl(data...);
+    }
 
 private:
-	template<typename...Args>
-	inline static void writeImpl(uint8_t data, Args...args)
-	{
-		writeImpl(data);
-		writeImpl(args...);
-	}
-	
-	inline static void writeImpl(uint8_t data)
-	{
-		TWDR = data;
-		TWCR = (1 << TWINT) | (1 << TWEN);
-		while (!(TWCR & (1 << TWINT)));
+    template<typename...Args>
+    inline static void writeImpl(uint8_t data, Args...args)
+    {
+        writeImpl(data);
+        writeImpl(args...);
+    }
+    
+    inline static void writeImpl(uint8_t data)
+    {
+        TWDR = data;
+        TWCR = (1 << TWINT) | (1 << TWEN);
+        while (!(TWCR & (1 << TWINT)));
 
-		auto status { TW_STATUS & TW_STATUS_MASK };
-		if (status != TW_MT_DATA_ACK && status != TW_MT_SLA_ACK) {
-			DEBUG_PRINT("Write failed, status: ", status);
-		}
-	}	
+        auto status { TW_STATUS & TW_STATUS_MASK };
+        if (status != TW_MT_DATA_ACK && status != TW_MT_SLA_ACK) {
+            DEBUG_PRINT("Write failed, status: ", status);
+        }
+    }    
 };
 
 struct ScopedTWI
 {
-	ScopedTWI(uint8_t address)
-	{
-		TWI::start();
-		TWI::write(address << 1);
-	}
+    ScopedTWI(uint8_t address)
+    {
+        TWI::start();
+        TWI::write(address << 1);
+    }
 
-	~ScopedTWI()
-	{
-		TWI::stop();
-	}
+    ~ScopedTWI()
+    {
+        TWI::stop();
+    }
 
-	template<typename...Args>
-	inline void write(Args...data)
-	{
-		TWI::write(data...);
-	}
+    template<typename...Args>
+    inline void write(Args...data)
+    {
+        TWI::write(data...);
+    }
 };

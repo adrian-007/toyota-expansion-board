@@ -23,16 +23,16 @@
 
 class InterruptGuard
 {
-	const uint8_t _sreg;
+    const uint8_t _sreg;
 public:
-	InterruptGuard()
-		: _sreg { SREG }
-	{
-		cli();
-	}
+    InterruptGuard()
+        : _sreg { SREG }
+    {
+        cli();
+    }
 
-	~InterruptGuard()
-	{
-		SREG = _sreg;
-	}
+    ~InterruptGuard()
+    {
+        SREG = _sreg;
+    }
 };

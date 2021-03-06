@@ -29,82 +29,82 @@
 
 ISR(ADC_vect)
 {
-	ADCButtons::instance().newSample(ADC);
+    ADCButtons::instance().newSample(ADC);
 }
 
 ISR(TIMER0_COMPA_vect)
 {
-	ADCButtons::instance().poll();
+    ADCButtons::instance().poll();
 }
 
 ISR(TIMER1_COMPA_vect)
 {
-	DS18B20::poll();
+    DS18B20::poll();
 }
 
 void disable_wdt() __attribute__((naked, used, section(".init3")));
 
 void disable_wdt()
 {
-	MCUSR = 0;
-	wdt_disable();
+    MCUSR = 0;
+    wdt_disable();
 }
 
 void initTimer0()
 {
-	// CTC mode
-	TCCR0A |= (1 << WGM01); 
-	// Prescaler = 1024
-	TCCR0B |= (1 << CS02) | (0 << CS01) | (1 << CS00);
+    // CTC mode
+    TCCR0A |= (1 << WGM01); 
+    // Prescaler = 1024
+    TCCR0B |= (1 << CS02) | (0 << CS01) | (1 << CS00);
 
-	OCR0A = 32;
-	// Enable COMPA interrupt
-	TIMSK0 |= (1 << OCIE0A);
+    OCR0A = 32;
+    // Enable COMPA interrupt
+    TIMSK0 |= (1 << OCIE0A);
 }
 
 void initTimer1()
 {
-	// CTC mode, prescaler = 256
-	TCCR1B |= (1 << WGM12) | (1 << CS12);
-	// F_CPU / 256 => interrupt every second
-	OCR1A = 15625;
-	// Enable COMPA interrupt
-	TIMSK1 |= (1 << OCIE1A);	
+    // CTC mode, prescaler = 256
+    TCCR1B |= (1 << WGM12) | (1 << CS12);
+    // F_CPU / 256 => interrupt every second
+    OCR1A = 15625;
+    // Enable COMPA interrupt
+    TIMSK1 |= (1 << OCIE1A);    
 }
 
 int main(void)
 {
-	Serial::init();
-	
-	DEBUG_PRINT("Initializing modules");
+    Serial::init();
+    
+    DEBUG_PRINT("Initializing modules");
 
-	TWI::init();
-	SSD1306::init();
-	DS18B20::init();
-	ADCButtons::instance().init();
+    TWI::init();
+    SSD1306::init();
+    DS18B20::init();
+    ADCButtons::instance().init();
 
-	initTimer0();
-	initTimer1();
+    initTimer0();
+    initTimer1();
 
-	// Enable Watchdog
-	wdt_enable(WDTO_4S);
+    // Enable Watchdog
+    wdt_enable(WDTO_4S);
 
-	// Enable interrupts
-	sei();
+    // Enable interrupts
+    sei();
 
     Serial::println("Entering main loop.");
     Serial::println();
 
-	int8_t temp { 90 };
+    int8_t temp { 90 };
     while (true) {
-		{
-			InterruptGuard ig {};
-			wdt_reset();
-			temp = DS18B20::lastTemperatureValue();
-		}
+        {
+            InterruptGuard ig {};
+            wdt_reset();
+            temp = DS18B20::lastTemperatureValue();
+        }
 
-		SSD1306::drawTemp(temp);
+        SSD1306::drawTemp(temp);
 
-		_delay_ms(200);
-	}
+        _delay_ms(200);
+    }
 }

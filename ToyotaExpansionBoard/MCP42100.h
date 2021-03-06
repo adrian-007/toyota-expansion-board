@@ -39,32 +39,32 @@
 class MCP42100
 {
 public:
-	MCP42100() = delete;
+    MCP42100() = delete;
 
-	static void init()
-	{
-		MCP42100_CS_DDR |= (1 << MCP42100_CS_PIN);
+    static void init()
+    {
+        MCP42100_CS_DDR |= (1 << MCP42100_CS_PIN);
 
-		// Set MOSI and SCK output, all others input
-		SPI_DDR |= (1 << MOSI_PIN) | (1 << SCK_PIN);
+        // Set MOSI and SCK output, all others input
+        SPI_DDR |= (1 << MOSI_PIN) | (1 << SCK_PIN);
 
-		// Enable SPI, master, set clock rate fck/16
-		SPCR = (1 << SPE) | (1 << MSTR) | (1 << SPR0);
+        // Enable SPI, master, set clock rate fck/16
+        SPCR = (1 << SPE) | (1 << MSTR) | (1 << SPR0);
 
-		setPOT(POT_TIP_ADDRESS | POT_RING_ADDRESS, 0);
-		setPOT(POT_TIP_SHUTDOWN | POT_RING_SHUTDOWN, 0);
-	}
+        setPOT(POT_TIP_ADDRESS | POT_RING_ADDRESS, 0);
+        setPOT(POT_TIP_SHUTDOWN | POT_RING_SHUTDOWN, 0);
+    }
 
-	static void setPOT(uint8_t address, uint8_t value)
-	{
-		MCP42100_CS_PORT &= ~(1 << MCP42100_CS_PIN);
+    static void setPOT(uint8_t address, uint8_t value)
+    {
+        MCP42100_CS_PORT &= ~(1 << MCP42100_CS_PIN);
 
-		SPDR = address;
-		while (!(SPSR & (1 << SPIF)));
-		
-		SPDR = value;
-		while (!(SPSR & (1 << SPIF)));
+        SPDR = address;
+        while (!(SPSR & (1 << SPIF)));
+        
+        SPDR = value;
+        while (!(SPSR & (1 << SPIF)));
 
-		MCP42100_CS_PORT |= (1 << MCP42100_CS_PIN);
-	}
+        MCP42100_CS_PORT |= (1 << MCP42100_CS_PIN);
+    }
 };
